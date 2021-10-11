@@ -89,7 +89,10 @@ func One2Two(oneitemfile string) {
 			if record[0] == record1[0] {
 				continue
 			}
-			for 
+			var up,down int=0
+			for _,raw := range dataset.Values{
+				for _,item 
+			}
 		}
 	}
 }
