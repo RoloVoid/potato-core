@@ -37,8 +37,9 @@ func Load(file string) *Dataset {
 
 //逐行字母序清理
 func Clean(dataset *Dataset) {
-	for _, record := range dataset.Values {
-		RankLex(record[1:])
+	for i, record := range dataset.Values {
+		dataset.Values[i] = record[1:]
+		RankLex(dataset.Values[i])
 	}
 }
 
