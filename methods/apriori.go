@@ -27,19 +27,21 @@ type Item struct {
 }
 
 var (
-	min_sup    float64
-	min_conf   float64
-	itemSet    map[string]float64
-	datasetDir string
-	targetDir  string
-	endfix     string
-	dataset    *tools.Dataset
+	min_sup_rate  float64
+	min_sup       float64
+	min_conf_rate float64
+	itemSet       map[string]float64
+	datasetDir    string
+	targetDir     string
+	endfix        string
+	dataset       *tools.Dataset
 )
 
 //init 过程中读取数据集，此处先不实现
 func init() {
-	min_sup = 0.002
-	min_conf = 0.7
+	min_sup_rate = 0.002
+	min_conf_rate = 0.7
+	min_sup = 400
 	itemSet = make(map[string]float64)
 	datasetDir = "./dataset"
 	targetDir = datasetDir
@@ -57,6 +59,14 @@ func generateDatabase() *tools.Dataset {
 	records := tools.Load("./dataset/shopping.csv")
 	tools.Clean(records)
 	return records
+}
+
+func measure(fre float64, choose int) bool {
+	if choose == 0 {
+		return fre/dataset.Size > min_sup_rate
+	} else {
+		return fre > min_sup
+	}
 }
 
 //生成一项集，计算支持度，保留三位小数
@@ -80,8 +90,8 @@ func InitializeItems() {
 		}
 	}
 	for key, value := range itemSet {
-		if sup := value / (dataset.Size); sup > min_sup {
-			fmt.Fprintln(file, key+","+fmt.Sprintf("%.3f", sup)+","+fmt.Sprintf("%.f", value))
+		if measure(value, 1) {
+			fmt.Fprintln(file, key+","+fmt.Sprintf("%.f", value))
 		}
 	}
 }
@@ -105,8 +115,8 @@ func One2Two() {
 					counter++
 				}
 			}
-			if sup := counter / dataset.Size; sup > min_sup {
-				fmt.Fprintln(file, records[i][0]+","+records[j][0]+","+fmt.Sprintf("%.3f", sup)+","+fmt.Sprintf("%.f", counter))
+			if measure(counter, 1) {
+				fmt.Fprintln(file, records[i][0]+","+records[j][0]+","+fmt.Sprintf("%.f", counter))
 			}
 		}
 	}
@@ -143,8 +153,8 @@ func Next(k int) {
 					counter++
 				}
 			}
-			if sup := counter / dataset.Size; sup > min_sup {
-				fmt.Fprintln(file, a+","+krecord[i][k-1]+","+krecord[j][k-1]+","+fmt.Sprintf("%.3f", sup)+","+fmt.Sprintf("%.f", counter))
+			if measure(counter, 1) {
+				fmt.Fprintln(file, a+","+krecord[i][k-1]+","+krecord[j][k-1]+","+fmt.Sprintf("%.f", counter))
 			}
 		}
 	}
