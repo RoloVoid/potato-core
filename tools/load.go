@@ -35,11 +35,19 @@ func Load(file string) *Dataset {
 	}
 }
 
+//对首项为标头的数据
 //逐行字母序清理
 func Clean(dataset *Dataset) {
 	for i, record := range dataset.Values {
 		dataset.Values[i] = record[1:]
 		RankLex(dataset.Values[i])
+	}
+}
+
+func CleanBuyFre(dataset *Dataset, mark map[string]float64) {
+	for i, record := range dataset.Values {
+		dataset.Values[i] = record[1:]
+		RankFre(dataset.Values[i], mark, 1)
 	}
 }
 

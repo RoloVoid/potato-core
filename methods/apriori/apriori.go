@@ -1,4 +1,4 @@
-package methods
+package apriori
 
 import (
 	"core/tools"
@@ -8,46 +8,6 @@ import (
 	"strconv"
 	"strings"
 )
-
-type vector struct {
-	support    float64 //AB同时出现的概率
-	confidence float64 //若A则B的条件概率
-}
-
-type linkedlist struct {
-	next   *linkedlist
-	lvalue string
-}
-
-type Item struct {
-	vector
-	nextItem *Item
-	value    string
-	length   int
-}
-
-var (
-	min_sup_rate  float64
-	min_sup       float64
-	min_conf_rate float64
-	itemSet       map[string]float64
-	datasetDir    string
-	targetDir     string
-	endfix        string
-	dataset       *tools.Dataset
-)
-
-//init 过程中读取数据集，此处先不实现
-func init() {
-	min_sup_rate = 0.002
-	min_conf_rate = 0.7
-	min_sup = 400
-	itemSet = make(map[string]float64)
-	datasetDir = "./dataset"
-	targetDir = datasetDir
-	dataset = generateDatabase()
-	endfix = ".csv"
-}
 
 func errHandler(err error) {
 	if err != nil {
@@ -66,33 +26,6 @@ func measure(fre float64, choose int) bool {
 		return fre/dataset.Size > min_sup_rate
 	} else {
 		return fre > min_sup
-	}
-}
-
-//生成一项集，计算支持度，保留三位小数
-//一项集格式：项,支持度,频度
-func InitializeItems() {
-	file, err := os.OpenFile("./dataset/1.csv", os.O_WRONLY|os.O_CREATE, 0666)
-	errHandler(err)
-	defer file.Close()
-
-	for _, records := range dataset.Values {
-		for _, item := range records {
-			if item == "" || item == " " {
-				continue
-			}
-			item = strings.TrimSpace(item)
-			if value, ok := itemSet[item]; ok {
-				itemSet[item] = value + 1
-			} else {
-				itemSet[item] = 1
-			}
-		}
-	}
-	for key, value := range itemSet {
-		if measure(value, 1) {
-			fmt.Fprintln(file, key+","+fmt.Sprintf("%.f", value))
-		}
 	}
 }
 
